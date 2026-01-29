@@ -43,13 +43,13 @@ def main():
             rilevazione +=1
             
             
-            temperatura = misurazione.temperatura(
+            temperatura = misurazione.on_temperatura(
                 config["sensore"]["tmin"],
                 config["sensore"]["tmax"],
                 config["sensore"]["erroret"]
             )
 
-            umidita = misurazione.umidita(
+            umidita = misurazione.on_umidita(
                 config["sensore"]["umin"],
                 config["sensore"]["umax"],
                 config["sensore"]["erroreu"]

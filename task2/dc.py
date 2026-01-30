@@ -3,7 +3,6 @@ import misurazione #Importa il modulo che simula il sensore di temperatura/umidi
 import time #importa il modulo per gestire le pause (sleep)
 import json # Importa il modulo per gestire i file json esterni
 import socket #Importa il modulo per fare le socket
-import cripto #Importa il modulo per la crittografia
 
 #funzione per caricare i parametri dal file di configurazione
 def caricamento_parametri(fileName: str):
@@ -70,9 +69,8 @@ def main():
 
             # Conversione in JSON
             dato_json = json.dumps(dato_iot)
-            dato_json_criptato = cripto.criptazione(dato_json) #Crittografia del dato JSON
             
-            client.send(dato_json_criptato.encode()) #Invio del dato al DA
+            client.send(dato_json.encode()) #Invio del dato al DA
             
             print("Dato inviato al Da:")
             print(dato_json)

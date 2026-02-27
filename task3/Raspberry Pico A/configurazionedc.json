@@ -10,5 +10,9 @@
     "erroret": 2,
     "erroreu": 4
   },
-  "identita": "DC100-03"
+  "identita": "DC100-03",
+  "cablaggio": {
+    "segnale": 0,
+    "gnd": 38
+  }
 }

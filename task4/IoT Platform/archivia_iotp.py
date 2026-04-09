@@ -20,12 +20,14 @@ def on_message(client, userdata, msg):
     iot_data_criptato = msg.payload.decode("utf-8")
     iot_data = cripto.decriptazione(iot_data_criptato)
     # Stampa della stringa JSON ricevuta nell'archivio
+    print("Dati ricevuti dal publisher:", iot_data)
+    # Salvataggio dei dati su file
     salva_file(iot_data)
     
 # Caricamento dei parametri dal file di configurazione con controllo errori
 def carica_parametri() -> dict:
     try:
-        with open("config.json", "r") as f:
+        with open("iotp.json", "r") as f:
             config = json.load(f)
             return config
     except FileNotFoundError:
@@ -96,3 +98,7 @@ def __main__():
         # Chiusura del file di output
         output_file.close()
     #
+
+# Main
+if __name__ == "__main__":
+    __main__()

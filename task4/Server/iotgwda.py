@@ -1,7 +1,8 @@
 import json # Modulo per la gestione dei file JSON
 import socket # Modulo per la gestione delle socket di rete
 import time # Gestione dei timestamp, dello sleep e dei timer
-import threading # Gestione del server multithreading
+import threading
+from xmlrpc import client # Gestione del server multithreading
 import paho.mqtt.client as mqtt # Modulo per la gestione del protocollo MQTT
 import cripto # Modulo per la gestione della crittografia
 
@@ -9,6 +10,8 @@ import cripto # Modulo per la gestione della crittografia
 CONFIG_FILE = "configurazione/parametri.conf"
 # Definizione della PATH del file di output
 OUTPUT_FILE = "iotp/db.json"
+
+
 
 
 # Classe per gestire la media delle misurazioni dei vari sensori connessi al gateway
@@ -149,7 +152,7 @@ def handle_client(name: str, parametri: dict, client_socket: socket.socket):
 
 # Funzione eseguita in un thread separato per la gestione
 # dell'invio dei parametri encriptati all'IoT platform
-def platform_sender(parametri: dict):
+def platform_sender(parametri: dict, clientMqtt: mqtt.Client):
     # Variabile contenente l'orario dell'ultimo invio
     last_send = int(time.time() * 1000)
 
@@ -171,8 +174,7 @@ def platform_sender(parametri: dict):
             output_data_encrypted = cripto.criptazione(output_data)
 
             try: # Effettua l'invio
-               client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
-               client.publish(parametri["MQTT_TOPIC"], output_data_encrypted)
+               clientMqtt.publish(parametri["TOPIC"], output_data_encrypted)
                time.sleep(1) # Attesa di un secondo per assicurarsi che il messaggio venga inviato
 
             except Exception as e:
@@ -194,13 +196,16 @@ def start_server():
         print("Errore durante l'apertura del file di configurazione")
         raise
 
+    clientMqtt = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
+    clientMqtt.connect(parametri["BROKER"], parametri["PORTA_BROKER"], 60)
+
     # Apri il socket su porta ed ip specificati nei parametri
     server_socket = open_socket(parametri["IP_SERVER"], parametri["PORTA_SERVER"])
     # Impostare il timeout del socket in modo che blocchi per un secondo
     server_socket.settimeout(1.0)
 
     # Creazione del thread per l'invio dei dati all'IoT Platform
-    platform_thread = threading.Thread(target=platform_sender, args=(parametri,))
+    platform_thread = threading.Thread(target=platform_sender, args=(parametri, clientMqtt))
     platform_thread.start()
 
     # Loop infinito per accettazione dei dati in arrivo dal client

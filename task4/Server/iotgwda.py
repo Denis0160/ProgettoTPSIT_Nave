@@ -198,6 +198,7 @@ def start_server():
 
     clientMqtt = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
     clientMqtt.connect(parametri["BROKER"], parametri["PORTA_BROKER"], 60)
+    clientMqtt.loop_start() # Avvio del loop di rete per l'invio dei messaggi MQTT
 
     # Apri il socket su porta ed ip specificati nei parametri
     server_socket = open_socket(parametri["IP_SERVER"], parametri["PORTA_SERVER"])
@@ -227,6 +228,9 @@ def start_server():
             # Stampa il numero di rilevazioni inviate
             global numero_rilevazioni_inviate
             print("Chiusura programma\nNumero di rilevazioni inviate all'IoTPlatform: ", numero_rilevazioni_inviate)
+            # Chiudi il client MQTT
+            clientMqtt.loop_stop()
+            clientMqtt.disconnect()
             return
         except Exception:
             print("Errore durante la connessione con il client.")

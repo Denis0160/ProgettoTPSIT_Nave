@@ -5,15 +5,15 @@ import paho.mqtt.client as mqtt_client          #Libreria MQTT di Paho
 import archivia_iotp   # Modulo per archiviare su file i dati provenienti dal publisher
 
 # Funzione di callback per la connessione al broker MQTT
-def on_connect(client, userdata, flags, rc):
-    if rc == 0:
+def on_connect(client, userdata, flags, reason_code, properties):
+    if reason_code == 0:
         print ("debug")
         print("Topic subscriber:",TOPIC,"- con QOS:", QOS)
         print("Connesso a MQTT Broker", BROKER_HOST,":",PORTA_BROKER)
         print()
         client.subscribe(TOPIC,QOS)
     else:
-        print("Connessione fallita, return code %d\n", rc)
+        print("Connessione fallita, return code %d\n", reason_code)
 # Funzione di callback per la ricezione dei messaggi MQTT
 def on_message(client, userdata, msg):
     # msg è una classe con membri topic, payload, qos, retain
@@ -85,7 +85,7 @@ def __main__():
         return
 
     # Creazione del client MQTT e associazione delle funzioni di callback
-    client = mqtt_client.Client()
+    client = mqtt_client.Client(mqtt_client.CallbackAPIVersion.VERSION2)
     client.on_connect = on_connect    # Funzione definita on_connect associata al client in risposta alla connessione avvenuta
     client.on_message = on_message    # Funzione definita on_message associata al client per la gestione messaggio ricevuto
     client.connect(BROKER_HOST, PORTA_BROKER, KEEPALIVE)    # Connessione broker MQTT

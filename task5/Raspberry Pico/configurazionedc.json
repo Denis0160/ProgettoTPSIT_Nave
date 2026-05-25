@@ -13,7 +13,6 @@
   "identita": "DC100-03",
   "ACCESS_TOKEN": "AtRxVvDQkRi5ncT0bPZX",
   "cablaggio": {
-    "segnale": 0,
-    "gnd": 38
+    "segnale": 2
   }
 }

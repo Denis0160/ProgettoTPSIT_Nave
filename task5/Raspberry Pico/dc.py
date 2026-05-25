@@ -85,11 +85,4 @@ def main():
     finally:
         client.close()
         print("Client DC terminato correttamente")
-    
-    
-if __name__ == "__main__":
-    main()
-    
-    
-            
             

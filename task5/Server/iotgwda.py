@@ -98,6 +98,9 @@ def open_socket(IP: str, PORT: int):
 def handle_client(name: str, parametri: dict, client_socket: socket.socket):
     print("Nuovo client: ", name)
 
+    # Impostazione del timeout del client al tempo di invio + 10 secondi aggiuntivi
+    client_socket.settimeout(parametri["TEMPO_RILEVAZIONE"] + 10.0)
+
     # Flag per determinare se il client va inizializzato
     clientInitialised = False
     
@@ -127,7 +130,13 @@ def handle_client(name: str, parametri: dict, client_socket: socket.socket):
         except KeyboardInterrupt:
             break
         except TimeoutError:
-            continue
+            print("Timeout! La scheda ha smesso di trasmettere!")
+            # Chiusura del socket per evitare l'attesa di close()
+            try:
+                client_socket.shutdown(socket.SHUT_RDWR)
+            except OSError:
+                pass 
+            break
         except OSError:
             break
 
@@ -156,14 +165,14 @@ def handle_client(name: str, parametri: dict, client_socket: socket.socket):
         # Aggiunta della misura al sensore specifico
         add_measurement(data_json["identita"], parametri["IDENTITA_GIOT"], int(data_json["cabina"]), int(data_json["ponte"]), round(float(data_json["osservazione"]["temperatura"]), parametri["N_DECIMALI"]), round(float(data_json["osservazione"]["umidita"]), parametri["N_DECIMALI"]));
 
+    # Chiusura del client MQTT
+    clientMqtt.loop_stop()
+    clientMqtt.disconnect()
     # Se il loop viene chiuso, chiudere anche il socket
     print("Chiusura comunicazione con client ", name)
     client_socket.close()
     # Rimozione di questo socket client dal dizionario
     client_sockets.pop(name)
-    # Chiusura del client MQTT
-    clientMqtt.loop_stop()
-    clientMqtt.disconnect()
 
 # Funzione eseguita in un thread separato per la gestione
 # dell'invio dei parametri encriptati all'IoT platform
